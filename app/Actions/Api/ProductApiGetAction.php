@@ -32,7 +32,11 @@ class ProductApiGetAction
     public function __invoke(Request $request): LengthAwarePaginator
     {
         return Product::query()
-            ->when($request->has("q"), fn($query) => $query->where("name", "LIKE", "%" . $request->input("q") . "%"))
+            ->when($request->has("q"), fn($query) => $query->whereFullText(
+                    'name',
+                    $request->q . '*',
+                    ['mode' => 'boolean']
+                ))
             ->when($request->has("price_from"), fn($query) => $query->where("price", ">=", $request->input("price_from")))
             ->when($request->has("price_to"), fn($query) => $query->where("price", "<=", $request->input("price_to")))
             ->when($request->has("category_id"), fn($query) => $query->where("category_id", $request->input("category_id")))
