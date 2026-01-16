@@ -2,10 +2,13 @@
 
 namespace App\Http\Requests;
 
+use App\Traits\JsonFiledValidationTrait;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ApiProductRequest extends FormRequest
 {
+    use JsonFiledValidationTrait;
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -33,4 +36,5 @@ class ApiProductRequest extends FormRequest
             'per_page' => 'nullable|integer|min:1|max:100',
         ];
     }
+
 }

@@ -4,12 +4,34 @@ namespace App\Actions\Api;
 
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 
+/**
+ * Action for retrieving and filtering products via API.
+ *
+ * Handles product search with filters for name, price range, category,
+ * stock status, rating, and sorting options.
+ */
 class ProductApiGetAction
 {
-    public function __invoke(Request $request): \Illuminate\Pagination\LengthAwarePaginator
+    /**
+     * Retrieve a paginated list of products with optional filters and sorting.
+     *
+     * @param Request $request The HTTP request containing filter parameters:
+     *                        - q: Search query for product name
+     *                        - price_from: Minimum price filter
+     *                        - price_to: Maximum price filter
+     *                        - category_id: Filter by category ID
+     *                        - in_stock: Filter by stock availability
+     *                        - rating_from: Minimum rating filter
+     *                        - sort: Sorting option (price_asc, price_desc, rating_desc, newest)
+     *                        - per_page: Number of items per page (default: 50)
+     *
+     * @return LengthAwarePaginator Paginated collection of products
+     */
+    public function __invoke(Request $request): LengthAwarePaginator
     {
-        $products = Product::query()
+        return Product::query()
             ->when($request->has("q"), fn($query) => $query->where("name", "LIKE", "%" . $request->input("q") . "%"))
             ->when($request->has("price_from"), fn($query) => $query->where("price", ">=", $request->input("price_from")))
             ->when($request->has("price_to"), fn($query) => $query->where("price", "<=", $request->input("price_to")))
@@ -26,7 +48,5 @@ class ProductApiGetAction
                 };
             })
             ->paginate($request->input("per_page", 50));
-
-        return $products;
     }
 }
